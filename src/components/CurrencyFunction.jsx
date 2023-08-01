@@ -1,56 +1,71 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./CurrencyFunction.css";
 import { CurrencyList } from "./CurrencyList";
+import { convertUpToDown, convertDownToUp } from "./conversionFunctions";
 
 function CurrencyFunction() {
-  const [selectedUpValue, setSelectedUpValue] = useState();
-  const [selectedDownValue, setSelectedDownValue] = useState();
+  const [selectedUpValue, setSelectedUpValue] = useState("");
+  const [selectedDownValue, setSelectedDownValue] = useState("");
   const [exchangeRate, setExchangeRate] = useState(null);
   const [timeLastUpdate, setTimeLastUpdate] = useState(null);
+  const [inputUpValue, setInputUpValue] = useState("");
+  const [inputDownValue, setInputDownValue] = useState("");
 
   const URLCurrency = "https://open.er-api.com/v6/latest/";
 
   useEffect(() => {
-    getExchange(selectedUpValue, selectedDownValue);
-  }, [selectedUpValue, selectedDownValue]);
-
-  const getExchange = async (selectedUpValue, selectedDownValue) => {
-    // if (!selectedUpValue) {
-    //   setSelectedUpValue("EUR");
-    // }
-
-    try {
-      const response = await fetch(`${URLCurrency}${selectedUpValue}`);
-      const data = await response.json();
-      console.log(data.rates.se);
-
-      //   if (!selectedDownValue) {
-      //     setSelectedDownValue("USD");
-      //   } else {
-      setExchangeRate = data.rates.selectedDownValue;
-      console.log(exchangeRate);
-      setSelectedDownValue(selectedDownValue);
-
-      if (!exchangeRate) {
-        throw new Error(`Currency not available: ${selectedDownValue}`);
+    const fetchExchangeRate = async () => {
+      if (selectedUpValue && selectedDownValue) {
+        try {
+          const response = await fetch(`${URLCurrency}${selectedUpValue}`);
+          const data = await response.json();
+          setExchangeRate(data.rates[selectedDownValue]);
+          setTimeLastUpdate(data.time_last_update_utc);
+        } catch (error) {
+          console.error(error);
+        }
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+
+    const updateConversionValues = () => {
+      if (exchangeRate !== null && inputUpValue !== "") {
+        setInputDownValue(
+          convertUpToDown(parseFloat(inputUpValue), exchangeRate)
+        );
+      }
+      if (exchangeRate !== null && inputDownValue !== "") {
+        setInputUpValue(
+          convertDownToUp(parseFloat(inputDownValue), exchangeRate)
+        );
+      }
+    };
+
+    fetchExchangeRate();
+    updateConversionValues();
+  }, [
+    selectedUpValue,
+    selectedDownValue,
+    exchangeRate,
+    inputUpValue,
+    inputDownValue,
+  ]);
+
+  const handleSelectUpChange = (event) => {
+    const selectedCurrency = event.target.value;
+    setSelectedUpValue(selectedCurrency);
+  };
+
+  const handleSelectDownChange = (event) => {
+    const selectedCurrency = event.target.value;
+    setSelectedDownValue(selectedCurrency);
   };
 
   const handleUpInputChange = (event) => {
-    console.log("This i up input change");
-    const newConvertedAmount = exchangeRate * event.target.value;
-    document.querySelector(".input-down").value = newConvertedAmount.toFixed(2);
+    setInputUpValue(event.target.value);
   };
 
   const handleDownInputChange = (event) => {
-    console.log("This i down input change");
-
-    const reciprocalRate = 1 / exchangeRate;
-    const equivalentAmount = event.target.value * reciprocalRate;
-    document.querySelector(".input-up").value = equivalentAmount.toFixed(2);
+    setInputDownValue(event.target.value);
   };
 
   return (
@@ -68,20 +83,16 @@ function CurrencyFunction() {
             className="input-up"
             aria-label="from convert"
             onChange={handleUpInputChange}
+            value={inputUpValue}
+            placeholder="Enter amount to convert"
           />
           <div className="currency-up">
             <div className="separator"></div>
-            <label className="up-span">
-              Select a Currency
-              <CurrencyList
-                className="list-up"
-                value={selectedUpValue}
-                onChange={(e) => {
-                  console.log(e.target.value);
-                  console.log("Hello from up");
-                }}
-              />
-            </label>
+            <CurrencyList
+              className="list-up"
+              value={selectedUpValue}
+              onChange={handleSelectUpChange}
+            />
           </div>
         </div>
         <div className="down-div">
@@ -90,25 +101,22 @@ function CurrencyFunction() {
             className="input-down"
             aria-label="to convert"
             onChange={handleDownInputChange}
+            value={inputDownValue}
+            placeholder="Converted amount"
           />
           <div className="currency-down">
             <div className="separator"></div>
-            <label className="down-span">
-              Select a Currency
-              <CurrencyList
-                className="list-down"
-                id="currency-to-list"
-                value={selectedDownValue}
-                onChange={(e) => {
-                  console.log("hello");
-
-                  setSelectedDownValue(e.target.value);
-                }}
-              />
-            </label>
+            <CurrencyList
+              className="list-down"
+              id="currency-to-list"
+              value={selectedDownValue}
+              onChange={handleSelectDownChange}
+            />
           </div>
         </div>
-        <div className="time-div">{timeLastUpdate}</div>
+        <div className="time-div">
+          {timeLastUpdate ? `Last updated: ${timeLastUpdate}` : "Loading..."}
+        </div>
       </div>
     </div>
   );

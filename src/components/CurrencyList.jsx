@@ -1,9 +1,9 @@
 import React from "react";
 
-export function CurrencyList() {
+export function CurrencyList({value, onChange}) {
   return (
     <>
-      <select>
+      <select value={value} onChange={onChange}>
         <option value=""></option>
         <option value="USD" label="US dollar">
           USD
