@@ -79,11 +79,14 @@ function CurrencyFunction() {
           />
           <div className="currency-up">
             <div className="separator"></div>
-            <CurrencyList
-              className="list-up"
-              value={selectedUpValue}
-              onChange={handleSelectUpChange}
-            />
+            <label className="up-span">
+              {selectedUpValue ? selectedUpValue : "Select a Currency"}
+              <CurrencyList
+                className="list-up"
+                value={selectedUpValue}
+                onChange={handleSelectUpChange}
+              />
+            </label>
           </div>
         </div>
         <div className="down-div">
@@ -97,12 +100,15 @@ function CurrencyFunction() {
           />
           <div className="currency-down">
             <div className="separator"></div>
-            <CurrencyList
-              className="list-down"
-              id="currency-to-list"
-              value={selectedDownValue}
-              onChange={handleSelectDownChange}
-            />
+            <label className="down-span">
+              {selectedDownValue ? selectedDownValue : "Select a Currency"}
+              <CurrencyList
+                className="list-down"
+                id="currency-to-list"
+                value={selectedDownValue}
+                onChange={handleSelectDownChange}
+              />
+            </label>
           </div>
         </div>
         <div className="time-div">
