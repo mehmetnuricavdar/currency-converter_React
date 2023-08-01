@@ -45,6 +45,7 @@ function CurrencyFunction() {
     setInputUpValue(event.target.value);
 
     if (!isNaN(inputValue) && exchangeRate !== null) {
+        console.log("Hello")
       setInputDownValue(convertUpToDown(inputValue, exchangeRate));
     }
   };
