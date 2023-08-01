@@ -10,6 +10,7 @@ function CurrencyFunction() {
   const [exchangeRate, setExchangeRate] = useState(null);
   const [inputUpValue, setInputUpValue] = useState("");
   const [inputDownValue, setInputDownValue] = useState("");
+  const [timeLastUpdate, setTimeLastUpdate] = useState(null);
 
   const URLCurrency = "https://open.er-api.com/v6/latest/";
 
@@ -24,6 +25,7 @@ function CurrencyFunction() {
       const response = await fetch(`${URLCurrency}${selectedUpValue}`);
       const data = await response.json();
       setExchangeRate(data.rates[selectedDownValue]);
+      setTimeLastUpdate(data.time_last_update_utc);
     } catch (error) {
       console.error(error);
     }
@@ -107,6 +109,9 @@ function CurrencyFunction() {
           {exchangeRate !== null
             ? `1 ${selectedUpValue} = ${exchangeRate} ${selectedDownValue}`
             : "Loading..."}
+        </div>
+        <div className="time-div">
+          {timeLastUpdate ? `Last updated: ${timeLastUpdate}` : ""}
         </div>
       </div>
     </div>
