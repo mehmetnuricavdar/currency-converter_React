@@ -1,4 +1,3 @@
-// CurrencyFunction.js
 import { useState, useEffect } from "react";
 import "./CurrencyFunction.css";
 import { CurrencyList } from "./CurrencyList";
