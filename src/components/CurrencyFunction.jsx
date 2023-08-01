@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// CurrencyFunction.js
+import { useState, useEffect } from "react";
 import "./CurrencyFunction.css";
 import { CurrencyList } from "./CurrencyList";
 import { convertUpToDown, convertDownToUp } from "./conversionFunctions";
@@ -7,48 +8,26 @@ function CurrencyFunction() {
   const [selectedUpValue, setSelectedUpValue] = useState("");
   const [selectedDownValue, setSelectedDownValue] = useState("");
   const [exchangeRate, setExchangeRate] = useState(null);
-  const [timeLastUpdate, setTimeLastUpdate] = useState(null);
   const [inputUpValue, setInputUpValue] = useState("");
   const [inputDownValue, setInputDownValue] = useState("");
 
   const URLCurrency = "https://open.er-api.com/v6/latest/";
 
   useEffect(() => {
-    const fetchExchangeRate = async () => {
-      if (selectedUpValue && selectedDownValue) {
-        try {
-          const response = await fetch(`${URLCurrency}${selectedUpValue}`);
-          const data = await response.json();
-          setExchangeRate(data.rates[selectedDownValue]);
-          setTimeLastUpdate(data.time_last_update_utc);
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    };
+    if (selectedUpValue && selectedDownValue) {
+      getExchangeRate(selectedUpValue, selectedDownValue);
+    }
+  }, [selectedUpValue, selectedDownValue]);
 
-    const updateConversionValues = () => {
-      if (exchangeRate !== null && inputUpValue !== "") {
-        setInputDownValue(
-          convertUpToDown(parseFloat(inputUpValue), exchangeRate)
-        );
-      }
-      if (exchangeRate !== null && inputDownValue !== "") {
-        setInputUpValue(
-          convertDownToUp(parseFloat(inputDownValue), exchangeRate)
-        );
-      }
-    };
-
-    fetchExchangeRate();
-    updateConversionValues();
-  }, [
-    selectedUpValue,
-    selectedDownValue,
-    exchangeRate,
-    inputUpValue,
-    inputDownValue,
-  ]);
+  const getExchangeRate = async (selectedUpValue, selectedDownValue) => {
+    try {
+      const response = await fetch(`${URLCurrency}${selectedUpValue}`);
+      const data = await response.json();
+      setExchangeRate(data.rates[selectedDownValue]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleSelectUpChange = (event) => {
     const selectedCurrency = event.target.value;
@@ -61,11 +40,21 @@ function CurrencyFunction() {
   };
 
   const handleUpInputChange = (event) => {
+    const inputValue = parseFloat(event.target.value);
     setInputUpValue(event.target.value);
+
+    if (!isNaN(inputValue) && exchangeRate !== null) {
+      setInputDownValue(convertUpToDown(inputValue, exchangeRate));
+    }
   };
 
   const handleDownInputChange = (event) => {
+    const inputValue = parseFloat(event.target.value);
     setInputDownValue(event.target.value);
+
+    if (!isNaN(inputValue) && exchangeRate !== null) {
+      setInputUpValue(convertDownToUp(inputValue, exchangeRate));
+    }
   };
 
   return (
@@ -115,7 +104,9 @@ function CurrencyFunction() {
           </div>
         </div>
         <div className="time-div">
-          {timeLastUpdate ? `Last updated: ${timeLastUpdate}` : "Loading..."}
+          {exchangeRate !== null
+            ? `1 ${selectedUpValue} = ${exchangeRate} ${selectedDownValue}`
+            : "Loading..."}
         </div>
       </div>
     </div>
