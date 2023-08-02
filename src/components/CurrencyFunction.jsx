@@ -41,21 +41,19 @@ function CurrencyFunction() {
   };
 
   const handleUpInputChange = (event) => {
-    const inputValue = parseFloat(event.target.value);
-    setInputUpValue(event.target.value);
+    setInputUpValue(parseFloat(event.target.value));
 
-    if (!isNaN(inputValue) && exchangeRate !== null) {
-        console.log("Hello")
-      setInputDownValue(convertUpToDown(inputValue, exchangeRate));
+    if (!isNaN(inputUpValue) && exchangeRate !== null) {
+      console.log("Hello");
+      setInputDownValue(convertUpToDown(inputUpValue, exchangeRate));
     }
   };
 
   const handleDownInputChange = (event) => {
-    const inputValue = parseFloat(event.target.value);
-    setInputDownValue(event.target.value);
+    setInputDownValue(parseFloat(event.target.value));
 
-    if (!isNaN(inputValue) && exchangeRate !== null) {
-      setInputUpValue(convertDownToUp(inputValue, exchangeRate));
+    if (!isNaN(inputDownValue) && exchangeRate !== null) {
+      setInputUpValue(convertDownToUp(inputDownValue, exchangeRate));
     }
   };
 
