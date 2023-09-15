@@ -4,17 +4,20 @@ import { CurrencyList } from "./CurrencyList";
 import { convertUpToDown, convertDownToUp } from "./conversionFunctions";
 
 function CurrencyFunction() {
-  const [selectedUpValue, setSelectedUpValue] = useState();
-  const [selectedDownValue, setSelectedDownValue] = useState();
+  const [selectedUpValue, setSelectedUpValue] = useState("");
+  const [selectedDownValue, setSelectedDownValue] = useState("");
   const [exchangeRate, setExchangeRate] = useState(null);
-  const [inputUpValue, setInputUpValue] = useState();
-  const [inputDownValue, setInputDownValue] = useState();
+  const [inputUpValue, setInputUpValue] = useState("");
+  const [inputDownValue, setInputDownValue] = useState("");
   const [timeLastUpdate, setTimeLastUpdate] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const URLCurrency = "https://open.er-api.com/v6/latest/";
 
+  // Fetch data from API
   useEffect(() => {
     if (selectedUpValue && selectedDownValue) {
+      setLoading(true);
       getExchangeRate(selectedUpValue, selectedDownValue);
     }
   }, [selectedUpValue, selectedDownValue]);
@@ -27,32 +30,54 @@ function CurrencyFunction() {
       setTimeLastUpdate(data.time_last_update_utc);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Select Currencies
   const handleSelectUpChange = (event) => {
-    const selectedCurrency = event.target.value;
-    setSelectedUpValue(selectedCurrency);
+    setSelectedUpValue(event.target.value);
   };
 
   const handleSelectDownChange = (event) => {
-    const selectedCurrency = event.target.value;
-    setSelectedDownValue(selectedCurrency);
+    setSelectedDownValue(event.target.value);
   };
+
+  // Handle number inputs
 
   const handleUpInputChange = (event) => {
-    setInputUpValue(parseFloat(event.target.value));
-
-    if (!isNaN(inputUpValue) && exchangeRate !== null) {
-      setInputDownValue(convertUpToDown(inputUpValue, exchangeRate));
-    }
+    const newValue = parseFloat(event.target.value);
+    setInputUpValue(newValue);
+    console.log(inputUpValue);
   };
+  useEffect(() => {
+    // Check if both currencies are selected
+    if (
+      !isNaN(inputUpValue) &&
+      exchangeRate !== null &&
+      selectedUpValue &&
+      selectedDownValue
+    ) {
+      const convertedValue = convertUpToDown(inputUpValue, exchangeRate);
+      console.log(convertedValue);
+      setInputDownValue(convertedValue);
+    }
+  }, [exchangeRate]);
 
   const handleDownInputChange = (event) => {
-    setInputDownValue(parseFloat(event.target.value));
+    const newValue = parseFloat(event.target.value);
+    setInputDownValue(newValue);
 
-    if (!isNaN(inputDownValue) && exchangeRate !== null) {
-      setInputUpValue(convertDownToUp(inputDownValue, exchangeRate));
+    // Check if both currencies are selected
+    if (
+      !isNaN(newValue) &&
+      exchangeRate !== null &&
+      selectedUpValue &&
+      selectedDownValue
+    ) {
+      const convertedValue = convertDownToUp(newValue, exchangeRate);
+      setInputUpValue(convertedValue);
     }
   };
 
@@ -109,9 +134,11 @@ function CurrencyFunction() {
           </div>
         </div>
         <div className="time-div">
-          {exchangeRate !== null
+          {loading
+            ? "Loading..."
+            : exchangeRate !== null
             ? `1 ${selectedUpValue} = ${exchangeRate} ${selectedDownValue}`
-            : "Loading..."}
+            : "Please enter an amount then select currencies"}
         </div>
         <div className="time-div">
           {timeLastUpdate ? `Last updated: ${timeLastUpdate}` : ""}
