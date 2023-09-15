@@ -4,11 +4,11 @@ import { CurrencyList } from "./CurrencyList";
 import { convertUpToDown, convertDownToUp } from "./conversionFunctions";
 
 function CurrencyFunction() {
-  const [selectedUpValue, setSelectedUpValue] = useState("");
-  const [selectedDownValue, setSelectedDownValue] = useState("");
+  const [selectedUpValue, setSelectedUpValue] = useState();
+  const [selectedDownValue, setSelectedDownValue] = useState();
   const [exchangeRate, setExchangeRate] = useState(null);
-  const [inputUpValue, setInputUpValue] = useState("");
-  const [inputDownValue, setInputDownValue] = useState("");
+  const [inputUpValue, setInputUpValue] = useState();
+  const [inputDownValue, setInputDownValue] = useState();
   const [timeLastUpdate, setTimeLastUpdate] = useState(null);
 
   const URLCurrency = "https://open.er-api.com/v6/latest/";
@@ -44,7 +44,6 @@ function CurrencyFunction() {
     setInputUpValue(parseFloat(event.target.value));
 
     if (!isNaN(inputUpValue) && exchangeRate !== null) {
-      console.log("Hello");
       setInputDownValue(convertUpToDown(inputUpValue, exchangeRate));
     }
   };
