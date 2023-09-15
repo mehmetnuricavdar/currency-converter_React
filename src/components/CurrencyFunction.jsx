@@ -63,7 +63,7 @@ function CurrencyFunction() {
       console.log(convertedValue);
       setInputDownValue(convertedValue);
     }
-  }, [exchangeRate]);
+  }, [inputUpValue, exchangeRate]);
 
   const handleDownInputChange = (event) => {
     const newValue = parseFloat(event.target.value);
